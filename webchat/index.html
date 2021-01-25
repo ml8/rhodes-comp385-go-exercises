@@ -1,0 +1,81 @@
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>CoolChat 😎</title>
+</head>
+<body>
+  Welcome to CoolChat 😎™️ 
+  <p> My id: <input type="text" id="who"/><br/>
+  <div id="messages" style="height: 200px;
+                         width: 200px;
+                         overflow-x:scroll;
+                         overflow-y:auto;
+                         resize: none; width: 100%;
+                         user-select: none;">
+  Messages:
+  </div>
+  To: <input type="text" id="to"/>
+  Message: <input type="text" id="message"/>
+  <button type="button" id="butt">send</button>
+  <script>
+    window.setInterval(function() {
+          var messages = document.getElementById("messages");
+          const me = document.getElementById("who").value;
+          const prev = messages.innerHTML;
+          if (me) {
+                const XHR = new XMLHttpRequest();
+                XHR.open("GET", "/get/"+me, false);
+                XHR.send(null);
+                console.log(XHR.responseText);
+                if (XHR.responseText) {
+                  messages.innerHTML = prev + XHR.responseText;
+                  messages.scrollTop = messages.scrollHeight;
+                }
+              } 
+        }, 1000);
+
+
+    var button = document.getElementById("butt");
+    button.addEventListener("click", function(event) {
+          var me = document.getElementById("who").value;
+          var to = document.getElementById("to").value;
+          var message = document.getElementById("message").value;
+          console.log(me, to, message)
+          
+          const XHR = new XMLHttpRequest();
+          let urlEncodedData = "",
+            urlEncodedPairs = [];
+
+          urlEncodedPairs.push(
+                encodeURIComponent("from") +
+                "=" +
+                encodeURIComponent(me));
+          urlEncodedPairs.push(
+                encodeURIComponent("to") +
+                "=" +
+                encodeURIComponent(to));
+          urlEncodedPairs.push(
+                encodeURIComponent("msg") +
+                "=" +
+                encodeURIComponent(message));
+          urlEncodedData = urlEncodedPairs.join("&").replace(/%20/g, "+");
+          XHR.addEventListener("error", function(event) {
+                console.log("oh no...")
+              });
+          XHR.open("POST", "/send/");
+          XHR.setRequestHeader("Content-Type",
+                "application/x-www-form-urlencoded");
+          XHR.send(urlEncodedData);
+          console.log("sent");
+        });
+
+    var input = document.getElementById("message");
+    input.addEventListener("keyup", function(event) {
+          if (event.keyCode === 13) {
+                event.preventDefault();
+                button.click();
+              }
+        });
+  </script>
+</body>
+</html>
